@@ -1,0 +1,18 @@
+{
+  "routes": [
+    { "src": "/apartment-doubicky$", "dest": "/apartment-doubicky/index.html" },
+    { "src": "/apartment-doubicky/(.*)", "dest": "/apartment-doubicky/$1" },
+
+    { "src": "/apartment-lebedin$", "dest": "/apartment-lebedin/index.html" },
+    { "src": "/apartment-lebedin/(.*)", "dest": "/apartment-lebedin/$1" },
+
+    { "src": "/apartment-studeny$", "dest": "/apartment-studeny/index.html" },
+    { "src": "/apartment-studeny/(.*)", "dest": "/apartment-studeny/$1" },
+
+    { "src": "/apartment-ujezera$", "dest": "/apartment-ujezera/index.html" },
+    { "src": "/apartment-ujezera/(.*)", "dest": "/apartment-ujezera/$1" },
+
+    { "src": "/apartment-vysoka-lipa-121$", "dest": "/apartment-vysoka-lipa-121/index.html" },
+    { "src": "/apartment-vysoka-lipa-121/(.*)", "dest": "/apartment-vysoka-lipa-121/$1" }
+  ]
+}
