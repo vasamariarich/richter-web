@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="cs" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiny Gold - Štramberk</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- FONTY --- */
+        body { font-family: 'Jost', sans-serif; }
+        
+        /* --- KALENDÁŘ STYLING --- */
+        .flatpickr-calendar { background: transparent !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+        .flatpickr-months { padding-top: 10px; padding-bottom: 20px; }
+        .flatpickr-month { height: 40px !important; }
+        .flatpickr-current-month { font-weight: 700; font-size: 1.1rem; color: #292f36; padding-top: 0 !important; }
+        .flatpickr-current-month input.cur-year { font-weight: 700; }
+        .flatpickr-weekday { color: #9ca3af !important; font-weight: 400 !important; font-size: 0.9rem !important; }
+        
+        .dayContainer { justify-content: flex-start !important; }
+        
+        .flatpickr-day { 
+            color: #4b5563; 
+            font-weight: 400; 
+            border-radius: 0; 
+            height: 40px; 
+            line-height: 40px; 
+            margin-top: 2px;
+            max-width: 14.2857% !important; 
+            flex-basis: 14.2857% !important;
+        }
+        
+        .flatpickr-day.today { border-color: transparent !important; background: #f3f4f6; }
+        
+        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
+            background: #8b7e6a !important; color: #fff !important; border-color: #8b7e6a !important;
+        }
+        .flatpickr-day.inRange {
+            background: #e5e7eb !important; color: #4b5563 !important;
+            box-shadow: -5px 0 0 #e5e7eb, 5px 0 0 #e5e7eb !important; border-color: #e5e7eb !important;
+        }
+
+        /* --- Toggle Switch Styling --- */
+        .room-checkbox { display: none; }
+        
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background-color: #d1d5db; 
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .room-checkbox:checked + .toggle-switch { background-color: #8b7e6a; }
+        .room-checkbox:checked + .toggle-switch::after { transform: translateX(20px); }
+
+        /* --- CAROUSEL ANIMACE --- */
+        .carousel-item {
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out, filter 0.5s ease-in-out;
+            will-change: transform;
+        }
+        .overlay-layer { transition: background-color 0.5s ease-in-out; }
+        .content-layer { transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
+
+        /* --- SKRYTÍ SCROLLBARU PRO GALERII V MODALU --- */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Custom colors rewrite */
+        .text-primary { color: #cda274; }
+        .bg-primary { background-color: #cda274; }
+        .hover\:bg-primaryHover:hover { background-color: #b88e5d; }
+        .selection\:bg-primary::selection { background-color: #cda274; }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#cda274', primaryHover: '#b88e5d', secondary: '#292f36', beige: '#F9F8F6' },
+                    fontFamily: { sans: ['"Jost"', 'sans-serif'], serif: ['"Jost"', 'serif'], }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-sans text-secondary antialiased bg-white selection:bg-primary selection:text-white">
+
+    <header id="hero" class="relative m-3 h-[calc(100vh-1.5rem)] min-h-[600px] rounded-[10px] overflow-hidden flex flex-col bg-cover bg-center shadow-lg" style="background-image: url('./images/hero-bg.jpg');">        
+        <div class="absolute inset-0 bg-black/40 z-0"></div>
+
+        <nav id="navbar" class="fixed top-0 left-0 w-full z-50 py-8 px-8 md:px-12 flex items-center justify-between text-white transition-all duration-300">
+            
+            <div class="hidden xl:flex space-x-8 items-center text-xs tracking-[0.2em] font-bold uppercase w-1/3 justify-start group whitespace-nowrap">
+                <a href="#about" class="transition-opacity duration-300 group-hover:opacity-50 hover:!opacity-100">O Tiny House</a>
+                <a href="#dispozice" class="transition-opacity duration-300 group-hover:opacity-50 hover:!opacity-100">Vybavení</a>
+                <a href="#trips" class="transition-opacity duration-300 group-hover:opacity-50 hover:!opacity-100">Výlety</a>
+                <a href="#reservation" class="transition-opacity duration-300 group-hover:opacity-50 hover:!opacity-100">Ceník a Kontakt</a>
+            </div>
+
+            <a href="#" class="text-xl md:text-2xl font-bold tracking-[0.2em] uppercase group absolute left-1/2 transform -translate-x-1/2 text-center">
+                Tiny<br><span class="font-normal text-primary">Gold</span>
+            </a>
+
+            <div class="hidden xl:flex items-center gap-6 w-1/3 justify-end">
+                <a href="#reservation" class="bg-gray-900/50 hover:bg-primary border border-white/20 backdrop-blur-sm px-6 py-3 rounded-md text-xs font-bold tracking-widest uppercase transition duration-300 flex items-center gap-2">
+                    <i class="fa-regular fa-bell"></i> Poptat termín
+                </a>
+            </div>
+
+            <button id="mobile-menu-btn" class="xl:hidden text-2xl text-white focus:outline-none z-50 ml-auto">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+
+        <div id="mobile-menu" class="hidden fixed top-0 left-0 w-full h-full bg-gray-900/95 backdrop-blur-xl text-white z-[60] flex flex-col items-center justify-center space-y-8">
+            <button id="mobile-menu-close" class="absolute top-8 right-8 text-3xl text-white hover:text-primary"><i class="fa-solid fa-xmark"></i></button>
+            <a href="#about" class="text-xl uppercase tracking-widest hover:text-primary">O chatě</a>
+            <a href="#dispozice" class="text-xl uppercase tracking-widest hover:text-primary">Vybavení</a>
+            <a href="#trips" class="text-xl uppercase tracking-widest hover:text-primary">Výlety</a>
+            <a href="#reservation" class="text-xl uppercase tracking-widest text-primary">Rezervace</a>
+        </div>
+
+        <div class="relative z-10 flex-grow flex flex-col items-center justify-center text-center text-white px-4 animate-fade-in pt-24 md:pt-40">
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-tight drop-shadow-lg">
+                Štramberk<br>Beskydy<br>Tiny House
+            </h1>
+            
+            <div class="my-6 text-white/80">
+                <svg width="80" height="15" viewBox="0 0 60 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 5C1 5 6 1 10.5 1C15 1 20 9 24.5 9C29 9 34 1 38.5 1C43 1 48 9 52.5 9C57 9 59 5 59 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+
+            <p class="font-serif italic text-xl md:text-2xl text-white/90 font-normal tracking-wide drop-shadow-md">
+                Vymazlená chatička pro 1-5 lidí s wellness sudem<br>a výhledem na Štramberskou Trúbu
+            </p>
+        </div>
+
+        <div class="relative z-10 pb-8 flex justify-center w-full animate-bounce mt-auto">
+            <a href="#welcome" class="w-10 h-10 border border-white/30 rounded-full flex items-center justify-center text-white hover:bg-white hover:text-secondary transition duration-300 backdrop-blur-sm">
+                <i class="fa-solid fa-arrow-down"></i>
+            </a>
+        </div>
+    </header>
+
+    <section id="welcome" class="py-24 md:py-32 bg-white text-center">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <span class="block text-xs font-bold tracking-[0.2em] uppercase mb-5 text-secondary">
+                Vítejte ve Štramberku
+            </span>
+            
+            <h2 class="text-4xl md:text-6xl font-bold text-secondary mb-8 leading-tight">
+                Relax a pohoda<br>v Tiny Gold
+            </h2>
+            
+            <div class="text-primary mb-8 flex justify-center">
+                <svg width="60" height="10" viewBox="0 0 60 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 5C1 5 6 1 10.5 1C15 1 20 9 24.5 9C29 9 34 1 38.5 1C43 1 48 9 52.5 9C57 9 59 5 59 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            
+            <p class="text-gray-500 font-serif text-lg leading-relaxed max-w-2xl mx-auto">
+                Náš Tiny Gold house je naše "čtvrté dítě". Vymazlená malá chatička na okraji Beskyd v kouzelném městečku Štramberk. 
+                <br><br>
+                Ideální místo pro páry hledající romantiku, rodiny s dětmi i samostatné jedince toužící po klidu. Čeká na vás houpačka s výhledem na Trúbu, venkovní posezení s ohništěm, trampolína a nově i horký koupací sud Jacuzzi. V zimě i v létě vás zahřejí nejen výhledy, ale i místní specialita – štramberské uši.
+            </p>
+            
+            <div class="mt-8 flex justify-center gap-2">
+                 <span class="inline-block bg-primary/10 text-primary px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider">Až 5 osob</span>
+                 <span class="inline-block bg-gray-100 text-gray-600 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider">Štramberk</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="py-24 bg-gray-50 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+        <div class="absolute bottom-0 right-0 w-[500px] h-[500px] bg-secondary/3 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 pointer-events-none"></div>
+
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col lg:flex-row gap-16 items-start">
+                
+                <div class="w-full lg:w-1/2 relative mt-8 lg:mt-0">
+                    <div class="relative z-10 rounded-2xl overflow-hidden shadow-2xl group">
+                        <img src="./images/about-main.jpg" alt="Exteriér Tiny House" class="w-full h-auto object-cover transform group-hover:scale-105 transition duration-700 ease-in-out">
+                    </div>
+                    
+                    <div class="absolute -bottom-10 -right-5 lg:-right-10 w-2/3 rounded-2xl overflow-hidden shadow-xl border-4 border-white z-20">
+                        <img src="./images/about-detail.jpg" alt="Pohled na Trúbu z vířivky" class="w-full h-auto object-cover">
+                    </div>
+
+                    <div class="absolute top-10 -left-6 z-30 bg-white p-5 rounded-xl shadow-lg border border-gray-100 flex items-center gap-3 animate-[bounce_3s_infinite]">
+                        <div class="text-center">
+                            <i class="fa-solid fa-mountain-sun text-primary text-2xl"></i>
+                        </div>
+                        <div class="text-xs font-bold text-secondary uppercase tracking-wider leading-tight">
+                            Výhled<br>na Trúbu
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full lg:w-1/2 lg:pl-10">
+                    <span class="block text-primary font-bold tracking-[0.2em] text-sm uppercase mb-4">Vybavení</span>
+                    <h2 class="text-4xl lg:text-5xl font-bold text-secondary mb-6 leading-tight">Luxus na malém<br>prostoru.</h2>
+                    
+                    <div class="space-y-4 mb-10 text-gray-500 text-lg leading-relaxed font-normal">
+                        <p>
+                            Tiny Gold nabízí chytře řešené ubytování. Spací část je umístěna v patře, kam se pohodlně vejdou dva dospělí a dvě děti. Spodní část slouží k relaxaci a hygieně.
+                        </p>
+                        <p>
+                            Oplocený pozemek zaručuje soukromí. K dispozici je klimatizace pro horké letní dny i topení pro zimní romantiku. Venku na vás čeká horký sud, ohniště a pro děti trampolína.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-500 text-xl flex-shrink-0">
+                                <i class="fa-solid fa-ban"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-secondary text-sm uppercase tracking-wide mb-1">Bez mazlíčků</h4>
+                                <p class="text-xs text-gray-400 leading-relaxed">Objekt je nekuřácký, zákaz zvířat.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xl flex-shrink-0">
+                                <i class="fa-solid fa-snowflake"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-secondary text-sm uppercase tracking-wide mb-1">Klimatizace</h4>
+                                <p class="text-xs text-gray-400 leading-relaxed">Příjemné klima v létě i v zimě.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xl flex-shrink-0">
+                                <i class="fa-solid fa-utensils"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-secondary text-sm uppercase tracking-wide mb-1">Vybavená kuchyň</h4>
+                                <p class="text-xs text-gray-400 leading-relaxed">Indukce, lednice, nádobí.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xl flex-shrink-0">
+                                <i class="fa-solid fa-hot-tub-person"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-secondary text-sm uppercase tracking-wide mb-1">Koupací sud</h4>
+                                <p class="text-xs text-gray-400 leading-relaxed">Jacuzzi s horkou vodou.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-2">
+                        <a href="https://www.e-chalupy.cz/pronajem-tiny-gold-stramberk-ubytovani-o17529" target="_blank" class="inline-flex items-center gap-3 bg-secondary hover:bg-primary text-white px-8 py-4 rounded-full transition duration-300 shadow-lg text-xs font-bold uppercase tracking-widest group">
+                            <span>Další informace</span>
+                            <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="dispozice" class="py-24 bg-white overflow-hidden">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="block text-primary font-bold tracking-[0.2em] text-sm uppercase mb-3">Dispozice</span>
+                <h2 class="text-4xl font-bold uppercase">Uspořádání Tiny House</h2>
+            </div>
+            
+            <div class="flex flex-col lg:flex-row items-center relative mb-24">
+                <div class="w-full lg:w-2/3 h-[400px] md:h-[500px] relative rounded-2xl overflow-hidden shadow-lg group">
+                    <img src="./images/room-living.jpg" alt="Spodní patro" class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+                </div>
+                <div class="w-full lg:w-1/3 relative mt-6 lg:mt-0 lg:-ml-16 z-10">
+                    <div class="bg-white p-8 md:p-10 rounded-xl shadow-2xl border border-gray-100 relative">
+                        <small class="block text-gray-400 font-bold uppercase tracking-widest text-xs mb-2">
+                            Přízemí
+                        </small>
+                        <h2 class="text-2xl md:text-3xl font-bold text-secondary mb-6">
+                            Zázemí & Relax
+                        </h2>
+                        <div class="border-t border-gray-100 pt-6 mb-8">
+                            <p class="text-gray-500 font-serif text-sm leading-relaxed mb-4">
+                                Spodní část slouží jako obývací prostor s kuchyní a koupelnou. Najdete zde vše potřebné pro pohodlný pobyt.
+                            </p>
+                            <ul class="space-y-3">
+                                <li class="flex items-center text-gray-500 text-sm font-bold uppercase tracking-wider">
+                                    <i class="fa-solid fa-tv text-primary w-8 text-center mr-2"></i> TV s O2 + Bluetooth rádio
+                                </li>
+                                <li class="flex items-center text-gray-500 text-sm font-bold uppercase tracking-wider">
+                                    <i class="fa-solid fa-kitchen-set text-primary w-8 text-center mr-2"></i> Kuchyně (indukce, lednice)
+                                </li>
+                                <li class="flex items-center text-gray-500 text-sm font-bold uppercase tracking-wider">
+                                    <i class="fa-solid fa-shower text-primary w-8 text-center mr-2"></i> Koupelna se sprchou
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row items-center relative mb-24">
+                <div class="w-full lg:w-1/3 relative mt-6 lg:mt-0 lg:-mr-16 z-10 order-2 lg:order-1">
+                    <div class="bg-white p-8 md:p-10 rounded-xl shadow-2xl border border-gray-100 relative">
+                        <small class="block text-gray-400 font-bold uppercase tracking-widest text-xs mb-2">
+                            Patro
+                        </small>
+                        <h2 class="text-2xl md:text-3xl font-bold text-secondary mb-6">
+                            Ložnice
+                        </h2>
+                        <div class="border-t border-gray-100 pt-6 mb-8">
+                            <p class="text-gray-500 font-serif text-sm leading-relaxed mb-4">
+                                Útulná ložnice se nachází v patře (podkroví). Prostor je navržen tak, aby se sem vešla celá rodina.
+                            </p>
+                            <ul class="space-y-3">
+                                <li class="flex items-center text-gray-500 text-sm font-bold uppercase tracking-wider">
+                                    <i class="fa-solid fa-bed text-primary w-8 text-center mr-2"></i> Kapacita: 2 dospělí
+                                </li>
+                                <li class="flex items-center text-gray-500 text-sm font-bold uppercase tracking-wider">
+                                    <i class="fa-solid fa-child-reaching text-primary w-8 text-center mr-2"></i> Kapacita: 2 děti
+                                </li>
+                                <li class="flex items-center text-gray-500 text-sm font-bold uppercase tracking-wider">
+                                    <i class="fa-solid fa-wind text-primary w-8 text-center mr-2"></i> Klimatizováno
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full lg:w-2/3 h-[400px] md:h-[500px] relative rounded-2xl overflow-hidden shadow-lg group order-1 lg:order-2">
+                    <img src="./images/room-bedroom.jpg" alt="Spaní v patře" class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row items-center relative">
+                <div class="w-full lg:w-2/3 h-[400px] md:h-[500px] relative rounded-2xl overflow-hidden shadow-lg group">
+                    <img src="./images/room-garden.jpg" alt="Zahrada a sud" class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+                </div>
+                <div class="w-full lg:w-1/3 relative mt-6 lg:mt-0 lg:-ml-16 z-10">
+                    <div class="bg-white p-8 md:p-10 rounded-xl shadow-2xl border border-gray-100 relative">
+                        <small class="block text-gray-400 font-bold uppercase tracking-widest text-xs mb-2">
+                            Exteriér
+                        </small>
+                        <h2 class="text-2xl md:text-3xl font-bold text-secondary mb-6">
+                            Zahrada & Wellness
+                        </h2>
+                        <div class="border-t border-gray-100 pt-6 mb-8">
+                             <p class="text-gray-500 font-serif text-sm leading-relaxed mb-4">
+                                Oplocená zahrada nabízí soukromí, výhled na hrad a vyžití pro děti i dospělé.
+                            </p>
+                            <ul class="space-y-3">
+                                <li class="flex items-center text-gray-500 text-sm font-bold uppercase tracking-wider">
+                                    <i class="fa-solid fa-water text-primary w-8 text-center mr-2"></i> Koupací sud Jacuzzi
+                                </li>
+                                <li class="flex items-center text-gray-500 text-sm font-bold uppercase tracking-wider">
+                                    <i class="fa-solid fa-fire text-primary w-8 text-center mr-2"></i> Ohniště a grilování
+                                </li>
+                                <li class="flex items-center text-gray-500 text-sm font-bold uppercase tracking-wider">
+                                    <i class="fa-brands fa-cloudversify text-primary w-8 text-center mr-2"></i> Trampolína a houpačka
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-16 text-center">
+                 <a href="#reservation" class="group inline-flex items-center gap-3 bg-secondary hover:bg-primary text-white px-10 py-5 rounded-full transition duration-300 shadow-xl text-sm font-bold uppercase tracking-widest">
+                    <span>Rezervovat Tiny House</span>
+                    <i class="fa-solid fa-calendar-check group-hover:scale-110 transition-transform"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+   <section id="trips" class="py-24 bg-[#fcfbf9] overflow-hidden relative">
+        <div class="container mx-auto px-6 mb-10 text-center">
+            <span class="block text-primary font-bold tracking-[0.2em] text-sm uppercase mb-3">Lokalita a okolí</span>
+            <h2 class="text-4xl font-bold text-secondary uppercase">Štramberk & Beskydy</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mt-6 rounded-full"></div>
+            <p class="mt-6 text-gray-500 max-w-2xl mx-auto">Štramberk, nazývaný Moravský Betlém, nabízí historii, krásu i turistiku. Kousek od chaty najdete ty nejkrásnější cíle.</p>
+        </div>
+
+        <div class="relative w-full h-[400px] md:h-[550px] flex items-center justify-center">
+
+            <button id="prevBtn" class="absolute left-4 md:left-10 z-30 w-12 h-12 md:w-16 md:h-16 bg-white/80 hover:bg-white text-secondary rounded-full shadow-lg flex items-center justify-center transition hover:scale-110 focus:outline-none backdrop-blur-sm">
+                <i class="fa-solid fa-arrow-left text-xl"></i>
+            </button>
+
+            <button id="nextBtn" class="absolute right-4 md:right-10 z-30 w-12 h-12 md:w-16 md:h-16 bg-white/80 hover:bg-white text-secondary rounded-full shadow-lg flex items-center justify-center transition hover:scale-110 focus:outline-none backdrop-blur-sm">
+                <i class="fa-solid fa-arrow-right text-xl"></i>
+            </button>
+
+            <div id="track" class="flex gap-4 md:gap-8 items-center absolute left-1/2 transition-transform duration-500 ease-out will-change-transform">
+                
+                <div class="carousel-item relative flex-shrink-0 w-[80vw] md:w-[650px] h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-2xl cursor-pointer group">
+                    <img src="./images/trip-truba.jpg" class="absolute inset-0 w-full h-full object-cover" alt="Štramberská Trúba">
+                    <div class="overlay-layer absolute inset-0 bg-white/60 z-10"></div>
+                    <div class="content-layer absolute bottom-0 left-0 w-full p-8 z-20 opacity-0 transition-opacity duration-500 text-white bg-gradient-to-t from-black/80 via-black/30 to-transparent translate-y-4">
+                        <small class="block text-white font-bold text-xs uppercase tracking-widest mb-1">Dominanta</small>
+                        <h3 class="text-3xl font-bold font-serif text-white">Štramberská Trúba</h3>
+                        <p class="text-white/90 text-sm mt-2">Ikonická věž s výhledem do širokého okolí, na kterou vidíte přímo od chaty.</p>
+                    </div>
+                </div>
+
+                <div class="carousel-item relative flex-shrink-0 w-[80vw] md:w-[650px] h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-2xl cursor-pointer group">
+                    <img src="./images/trip-sipka.jpg" class="absolute inset-0 w-full h-full object-cover" alt="Jeskyně Šipka">
+                    <div class="overlay-layer absolute inset-0 bg-white/60 z-10"></div>
+                    <div class="content-layer absolute bottom-0 left-0 w-full p-8 z-20 opacity-0 transition-opacity duration-500 text-white bg-gradient-to-t from-black/80 via-black/30 to-transparent translate-y-4">
+                        <small class="block text-white font-bold text-xs uppercase tracking-widest mb-1">Příroda</small>
+                        <h3 class="text-3xl font-bold font-serif text-white">Jeskyně Šipka</h3>
+                        <p class="text-white/90 text-sm mt-2">Slavné naleziště neandrtálského dítěte kousek od centra.</p>
+                    </div>
+                </div>
+
+                <div class="carousel-item relative flex-shrink-0 w-[80vw] md:w-[650px] h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-2xl cursor-pointer group">
+                    <img src="./images/trip-tatra.webp" class="absolute inset-0 w-full h-full object-cover" alt="Muzeum Tatra">
+                    <div class="overlay-layer absolute inset-0 bg-white/60 z-10"></div>
+                    <div class="content-layer absolute bottom-0 left-0 w-full p-8 z-20 opacity-0 transition-opacity duration-500 text-white bg-gradient-to-t from-black/80 via-black/30 to-transparent translate-y-4">
+                        <small class="block text-white font-bold text-xs uppercase tracking-widest mb-1">Muzeum</small>
+                        <h3 class="text-3xl font-bold font-serif text-white">Tatra Kopřivnice</h3>
+                        <p class="text-white/90 text-sm mt-2">Legendární automobilka a technické muzeum jen kousek vedle.</p>
+                    </div>
+                </div>
+
+                <div class="carousel-item relative flex-shrink-0 w-[80vw] md:w-[650px] h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-2xl cursor-pointer group">
+                    <img src="./images/trip-libotin.jpg" class="absolute inset-0 w-full h-full object-cover" alt="Koupaliště Libotín">
+                    <div class="overlay-layer absolute inset-0 bg-white/60 z-10"></div>
+                    <div class="content-layer absolute bottom-0 left-0 w-full p-8 z-20 opacity-0 transition-opacity duration-500 text-white bg-gradient-to-t from-black/80 via-black/30 to-transparent translate-y-4">
+                        <small class="block text-white font-bold text-xs uppercase tracking-widest mb-1">Koupání</small>
+                        <h3 class="text-3xl font-bold font-serif text-white">Koupaliště Libotín</h3>
+                        <p class="text-white/90 text-sm mt-2">Přírodní koupaliště a minigolf uprostřed lesů.</p>
+                    </div>
+                </div>
+
+                <div class="carousel-item relative flex-shrink-0 w-[80vw] md:w-[650px] h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-2xl cursor-pointer group">
+                    <img src="./images/trip-pustevny.webp" class="absolute inset-0 w-full h-full object-cover" alt="Pustevny">
+                    <div class="overlay-layer absolute inset-0 bg-white/60 z-10"></div>
+                    <div class="content-layer absolute bottom-0 left-0 w-full p-8 z-20 opacity-0 transition-opacity duration-500 text-white bg-gradient-to-t from-black/80 via-black/30 to-transparent translate-y-4">
+                        <small class="block text-white font-bold text-xs uppercase tracking-widest mb-1">Turistika</small>
+                        <h3 class="text-3xl font-bold font-serif text-white">Pustevny & Radhošť</h3>
+                        <p class="text-white/90 text-sm mt-2">Nejznámější turistické cíle Beskyd v dojezdové vzdálenosti.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 bg-secondary text-white relative">
+        <div class="absolute top-10 right-10 text-9xl text-white/5 font-serif pointer-events-none">“</div>
+        <div class="container mx-auto px-6 relative z-10 text-center">
+            <div class="text-center mb-10">
+                <span class="block text-primary font-bold tracking-[0.2em] text-sm uppercase mb-3">Recenze</span>
+                <h2 class="text-4xl font-bold uppercase">Co říkají naši hosté</h2>
+                <div class="flex justify-center gap-2 mt-4 text-primary text-xl">
+                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    <span class="text-white text-sm ml-2 font-bold">(5,0 / 5)</span>
+                </div>
+                <p class="text-xs text-gray-400 mt-2">Na základě 25 hodnocení</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left max-w-6xl mx-auto">
+                <div class="bg-white/5 p-6 rounded-xl">
+                    <p class="text-gray-300 italic mb-4">"Domeček vypadá krásně, moderně, je nádherně vybavený. Nádherný výhled na Štramberskou trůbu. Užili jsme si také horký sud, který byl v té zimě naprosto parádní."</p>
+                    <p class="text-primary font-bold text-xs uppercase">- Marika a Kuba, Zima 2026</p>
+                </div>
+                <div class="bg-white/5 p-6 rounded-xl">
+                    <p class="text-gray-300 italic mb-4">"Krásný a moderně vybavený dům, který díky vánoční výzdobě a venkovnímu sudu s jacuzzi přesně splnil naši představu o Cozy winter pobytu."</p>
+                    <p class="text-primary font-bold text-xs uppercase">- Vladimír v páru, Zima 2025</p>
+                </div>
+                <div class="bg-white/5 p-6 rounded-xl">
+                    <p class="text-gray-300 italic mb-4">"Poloha domečku je naprosto ideální. Cítili jsme se jako v pohádce. Domeček je plnohodnotně vybaven i na delší pobyt. Čistý, stylově zařízený."</p>
+                    <p class="text-primary font-bold text-xs uppercase">- Pavla v páru, Léto 2025</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="gallery" class="py-24 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <span class="block text-primary font-bold tracking-[0.2em] text-sm uppercase mb-3">Fotogalerie</span>
+                <h2 class="text-4xl font-bold text-secondary uppercase">Tiny Gold Štramberk</h2>
+                <div class="w-24 h-1 bg-primary mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[250px] md:auto-rows-[300px]">
+                
+                <div class="col-span-1 sm:col-span-2 md:col-span-2 md:row-span-2 relative overflow-hidden rounded-2xl group cursor-pointer" onclick="openImageModal(this.querySelector('img').src)">
+                    <img src="./images/gallery-1.jpg" alt="Exteriér a sud" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition duration-500"></div>
+                </div>
+
+                <div class="relative overflow-hidden rounded-2xl group cursor-pointer" onclick="openImageModal(this.querySelector('img').src)">
+                    <img src="./images/gallery-2.jpg" alt="Interiér - obývací část" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition duration-500"></div>
+                </div>
+
+                <div class="relative overflow-hidden rounded-2xl group cursor-pointer" onclick="openImageModal(this.querySelector('img').src)">
+                    <img src="./images/gallery-3.jpg" alt="Kuchyňka" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition duration-500"></div>
+                </div>
+
+                <div class="relative overflow-hidden rounded-2xl group cursor-pointer" onclick="openImageModal(this.querySelector('img').src)">
+                    <img src="./images/gallery-4.jpg" alt="Noční atmosféra" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition duration-500"></div>
+                </div>
+
+                <div class="relative overflow-hidden rounded-2xl group cursor-pointer" onclick="openImageModal(this.querySelector('img').src)">
+                    <img src="./images/gallery-5.jpg" alt="Ložnice v patře" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition duration-500"></div>
+                </div>
+
+            </div>
+
+            <div class="mt-12 text-center">
+                <a href="https://www.e-chalupy.cz/pronajem-tiny-gold-stramberk-ubytovani-o17529" target="_blank" class="inline-flex items-center gap-3 bg-secondary hover:bg-primary text-white px-8 py-4 rounded-full transition duration-300 shadow-lg text-xs font-bold uppercase tracking-widest group">
+                    <span>Zobrazit celou galerii</span>
+                    <i class="fa-solid fa-camera group-hover:scale-110 transition-transform"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="reservation" class="py-32 bg-[#F9F8F6]">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+                
+                <div class="lg:col-span-4 lg:pt-10">
+                    <span class="block text-[#a89076] font-bold tracking-[0.2em] text-xs uppercase mb-6">Rezervace</span>
+                    <h2 class="text-5xl font-bold text-secondary mb-8 leading-tight">Ceník & Poptávka</h2>
+                    <div class="text-gray-600 leading-relaxed mb-10 text-sm font-light space-y-4">
+                        <p class="font-bold text-xl text-primary">Cena od 2 000 Kč / noc</p>
+                        
+                        <div class="border-l-4 border-primary pl-4">
+                            <strong class="block text-secondary">Základní ceník</strong>
+                            16 000 Kč / týden (Sezóna)<br>
+                            5 400 Kč / víkend (Sezóna)
+                        </div>
+
+                        <div class="border-l-4 border-secondary pl-4">
+                            <strong class="block text-secondary">Mimo sezónu</strong>
+                            14 000 Kč / týden<br>
+                            4 400 Kč / víkend
+                        </div>
+                        
+                        <p class="text-xs mt-4">
+                            <strong>Speciální termíny:</strong> Vánoce 3 000 Kč/noc (min. 3 noci).<br>
+                            <strong>Silvestr:</strong> 3 500 Kč/noc (min. 3 noci).<br>
+                            <strong>Poznámka:</strong> Možnost snídaně po domluvě.
+                        </p>
+                    </div>
+
+                    <div class="inline-flex items-center gap-6 group">
+                        <div class="w-12 h-12 flex-shrink-0 text-[#a89076]">
+                            <i class="fa-solid fa-envelope text-4xl"></i>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] text-gray-500 uppercase tracking-[0.2em] font-bold mb-1">Máte dotaz?</span>
+                            <span class="text-[#a89076] text-lg font-bold tracking-wide group-hover:text-primaryHover transition">732 940 187</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-8">
+                    <div class="bg-white p-8 md:p-12 rounded-[2rem] shadow-xl">
+                        <form id="bookingForm" onsubmit="event.preventDefault(); alert('Poptávka odeslána! Budeme vás kontaktovat.');">
+                            
+                            <h3 class="text-xl font-bold text-secondary mb-6">Nezávazná poptávka termínu</h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                                <div>
+                                    <label class="block text-sm text-gray-600 font-light mb-3">Počet dospělých</label>
+                                    <div class="relative group">
+                                        <select id="adults" class="w-full bg-[#F9F8F6] text-gray-700 h-14 pl-6 pr-10 rounded-lg appearance-none focus:outline-none cursor-pointer shadow-sm text-sm font-medium" onchange="updateGuestLogic()">
+                                        </select>
+                                        <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 font-light mb-3">Počet dětí</label>
+                                    <div class="relative group">
+                                        <select id="children" class="w-full bg-[#F9F8F6] text-gray-700 h-14 pl-6 pr-10 rounded-lg appearance-none focus:outline-none cursor-pointer shadow-sm text-sm font-medium" onchange="toggleChildAges(this.value); updateGuestLogic()">
+                                        </select>
+                                        <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="child_ages_container" class="grid grid-cols-2 gap-4 mb-8 hidden"></div>
+
+                            <div class="bg-[#F9F8F6] rounded-2xl p-6 md:p-8 shadow-inner mb-6">
+                                <label class="block text-sm text-gray-600 font-light mb-3">Vyberte termín pobytu</label>
+                                <input type="text" id="inline-calendar-input" class="hidden">
+                            </div>
+
+                            <div id="room-selection" class="hidden mb-6 p-4 border border-primary/20 bg-primary/5 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                     <div class="flex items-center gap-3">
+                                         <input type="checkbox" id="room1" class="room-checkbox" checked disabled>
+                                         <div class="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-white text-xs"><i class="fa-solid fa-check"></i></div>
+                                         <span class="font-bold text-secondary">Celý Tiny House (1-5 osob)</span>
+                                     </div>
+                                </div>
+                                <div id="capacity-warning" class="text-red-500 font-medium text-xs mt-2 hidden"></div>
+                            </div>
+
+                            <div id="price-summary" class="hidden mb-6">
+                                <p class="text-secondary font-bold text-base md:text-lg mb-1" id="price-text"></p>
+                                <p class="text-xs text-orange-600 font-bold">* Uvedená cena je pouze orientační.</p>
+                            </div>
+
+                            <div class="flex justify-end">
+                                <button type="submit" id="submitBtn" class="bg-secondary border-2 border-secondary text-white font-bold uppercase tracking-widest text-xs px-10 py-4 rounded-full hover:bg-gray-800 transition shadow-lg opacity-50 cursor-not-allowed" disabled>
+                                    Odeslat poptávku
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="map" class="w-full h-[500px] relative">
+        <iframe 
+            width="100%" 
+            height="100%" 
+            frameborder="0" 
+            scrolling="no" 
+            marginheight="0" 
+            marginwidth="0" 
+            title="Mapa Tiny Gold"
+            src="https://maps.google.com/maps?q=49.64063N,18.48464E&hl=cs&z=14&output=embed"
+            style="filter: grayscale(0.8) contrast(1.1); transition: filter 0.5s ease;"
+            class="w-full h-full hover:filter-none"
+        ></iframe>
+        
+        <div class="absolute top-10 left-10 md:left-20 bg-white p-6 rounded-xl shadow-2xl max-w-xs z-10 hidden md:block border border-gray-100">
+            <h3 class="text-secondary font-bold uppercase tracking-widest text-sm mb-2">Adresa</h3>
+            <p class="text-gray-500 leading-relaxed text-sm font-serif">
+                Tiny Gold<br>
+                Novojičínská 886<br>
+                742 66 Štramberk
+            </p>
+            <p class="text-xs text-gray-400 mt-2">GPS: 49.59262N, 18.10981E</p>
+            <a href="https://maps.google.com/?q=49.64063,18.48464" target="_blank" class="text-primary text-xs font-bold uppercase tracking-widest mt-4 inline-block hover:text-primaryHover transition">
+                Otevřít v Google Maps <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i>
+            </a>
+        </div>
+    </section>
+
+    <footer class="bg-secondary text-white pt-20 pb-10 border-t border-white/10">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+                
+                <div class="space-y-6">
+                    <a href="#" class="text-3xl font-bold tracking-widest text-white uppercase inline-block">
+                        Tiny <span class="text-primary">Gold</span>
+                    </a>
+                    <p class="text-gray-400 leading-relaxed text-sm">
+                        Kouzelný Tiny House na okraji Beskyd. Moderní vybavení, horký sud a výhled na Štramberskou Trúbu.
+                    </p>
+                    
+                    <ul class="space-y-4 mt-6">
+                        <li class="flex items-start gap-3">
+                            <div class="mt-1 w-6 flex justify-center">
+                                <i class="fa-solid fa-location-dot text-primary"></i>
+                            </div>
+                            <span class="text-gray-400 text-sm leading-relaxed">
+                                Novojičínská 886<br>
+                                Štramberk
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-bold uppercase mb-6 tracking-wider">Navigace</h4>
+                    <ul class="space-y-4 text-gray-400">
+                        <li><a href="#" class="hover:text-primary transition">Úvod</a></li>
+                        <li><a href="#about" class="hover:text-primary transition">O chatě</a></li>
+                        <li><a href="#dispozice" class="hover:text-primary transition">Vybavení</a></li>
+                        <li><a href="#trips" class="hover:text-primary transition">Výlety</a></li>
+                        <li><a href="#reservation" class="hover:text-primary transition">Kontakt</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-bold uppercase mb-6 tracking-wider">Tipy v okolí</h4>
+                    <div class="space-y-2 text-gray-400 text-sm">
+                        <p class="hover:text-white transition cursor-default">Štramberská Trúba</p>
+                        <p class="hover:text-white transition cursor-default">Jeskyně Šipka</p>
+                        <p class="hover:text-white transition cursor-default">Tatra Kopřivnice</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-500 text-sm">
+                <p>© 2026 Tiny Gold.</p>
+                <div class="flex gap-4 text-lg">
+                    <a href="#" class="hover:text-primary transition"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" class="hover:text-primary transition"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="image-modal" class="fixed inset-0 z-[100] hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <button onclick="closeImageModal()" class="absolute top-4 right-4 text-white hover:text-primary transition text-4xl z-50 p-4">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        
+        <img id="modal-image" src="" alt="Detail" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl scale-95 transition-transform duration-300 object-contain">
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/cs.js"></script>
+    <script>
+        // ==========================================
+        // KONFIGURACE PRO TINY GOLD
+        // ==========================================
+        const KONFIGURACE = {
+            maxKapacita: 5, // 3 lůžka + 2 přistýlky
+            zakladniCenaNoc: 2000 
+        };
+
+        let selectedDatesRange = [];
+        let numberOfNights = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDropdowns();
+            initCarousel();
+            initCalendar();
+            initScrollNavbar();
+            
+            // Mobile Menu
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileClose = document.getElementById('mobile-menu-close');
+            
+            if(mobileBtn && mobileMenu) {
+                mobileBtn.addEventListener('click', () => { mobileMenu.classList.remove('hidden'); });
+                if(mobileClose) mobileClose.addEventListener('click', () => { mobileMenu.classList.add('hidden'); });
+                document.querySelectorAll('#mobile-menu a').forEach(link => { link.addEventListener('click', () => { mobileMenu.classList.add('hidden'); }); });
+            }
+        });
+
+        // ==========================================
+        // SCROLL NAVBAR EFEKT
+        // ==========================================
+        function initScrollNavbar() {
+            const navbar = document.getElementById('navbar');
+            
+            const updateNavbar = () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('bg-secondary/95', 'backdrop-blur-md', 'shadow-lg', 'py-4');
+                    navbar.classList.remove('py-8');
+                } else {
+                    navbar.classList.remove('bg-secondary/95', 'backdrop-blur-md', 'shadow-lg', 'py-4');
+                    navbar.classList.add('py-8');
+                }
+            };
+
+            updateNavbar();
+            window.addEventListener('scroll', updateNavbar);
+        }
+
+        // ==========================================
+        // LIGHTBOX FUNKCE
+        // ==========================================
+        function openImageModal(src) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-image');
+            
+            modalImg.src = src;
+            modal.classList.remove('hidden');
+            
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalImg.classList.remove('scale-95');
+                modalImg.classList.add('scale-100');
+            }, 10);
+            
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-image');
+
+            modal.classList.add('opacity-0');
+            modalImg.classList.remove('scale-100');
+            modalImg.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modalImg.src = ''; 
+            }, 300); 
+            
+            document.body.style.overflow = 'auto'; 
+        }
+
+        document.getElementById('image-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeImageModal();
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeImageModal();
+        });
+
+        // ==========================================
+        // OSTATNÍ FUNKCE
+        // ==========================================
+
+        function initDropdowns() {
+            const adultsSelect = document.getElementById('adults');
+            const childrenSelect = document.getElementById('children');
+            if(!adultsSelect || !childrenSelect) return;
+            
+            adultsSelect.innerHTML = ''; childrenSelect.innerHTML = '';
+
+            for (let i = 1; i <= KONFIGURACE.maxKapacita; i++) {
+                const opt = document.createElement('option');
+                opt.value = i; opt.text = i === 1 ? '1 dospělý' : (i < 5 ? `${i} dospělí` : `${i} dospělých`);
+                adultsSelect.appendChild(opt);
+            }
+            for (let i = 0; i <= KONFIGURACE.maxKapacita; i++) {
+                const opt = document.createElement('option');
+                opt.value = i; opt.text = i === 0 ? '0 dětí' : (i === 1 ? '1 dítě' : (i < 5 ? `${i} děti` : `${i} dětí`));
+                childrenSelect.appendChild(opt);
+            }
+        }
+
+        function updateGuestLogic() {
+            validateCapacity();
+        }
+
+        function validateCapacity() {
+            const adults = parseInt(document.getElementById('adults').value);
+            const children = parseInt(document.getElementById('children').value);
+            const totalGuests = adults + children;
+
+            const warningEl = document.getElementById('capacity-warning');
+            const btn = document.getElementById('submitBtn');
+
+            if (numberOfNights === 0) return;
+
+            if (totalGuests > KONFIGURACE.maxKapacita) {
+                warningEl.innerHTML = `Překročena kapacita! Maximálně ${KONFIGURACE.maxKapacita} osob.`;
+                warningEl.classList.remove('hidden');
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.disabled = true;
+            } else {
+                warningEl.classList.add('hidden');
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                btn.disabled = false;
+            }
+            calculatePrice(); 
+        }
+
+        function calculatePrice() {
+            if (numberOfNights === 0) return;
+
+            // Orientační výpočet
+            const totalPrice = KONFIGURACE.zakladniCenaNoc * numberOfNights;
+            const priceText = `Orientační cena od: ${totalPrice.toLocaleString()} Kč (${numberOfNights}× noc)`;
+            document.getElementById('price-text').innerText = priceText;
+        }
+
+        function toggleChildAges(val) {
+            const container = document.getElementById('child_ages_container');
+            const count = parseInt(val);
+            container.innerHTML = ''; 
+            if (count > 0) {
+                container.classList.remove('hidden');
+                for (let i = 1; i <= count; i++) {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <label class="block text-xs text-gray-500 font-light mb-2">${i}. dítě věk</label>
+                        <div class="relative">
+                            <select class="w-full bg-white text-gray-700 h-12 px-4 rounded-lg appearance-none focus:outline-none cursor-pointer text-xs font-medium border border-gray-100 shadow-sm">
+                                <option>0-2 roky</option><option>3-12 let</option><option>13+ let</option>
+                            </select>
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                        </div>`;
+                    container.appendChild(div);
+                }
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function initCalendar() {
+            const calendarInput = document.getElementById('inline-calendar-input');
+            if(!calendarInput) return;
+
+            flatpickr("#inline-calendar-input", {
+                inline: true, mode: "range", locale: "cs", minDate: "today", dateFormat: "d. m. Y", showMonths: 2,
+                onChange: function(selectedDates) {
+                    if(selectedDates.length === 2) {
+                        selectedDatesRange = selectedDates;
+                        const diffTime = Math.abs(selectedDates[1] - selectedDates[0]);
+                        numberOfNights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        
+                        document.getElementById('price-summary').classList.remove('hidden');
+                        document.getElementById('room-selection').classList.remove('hidden');
+                        validateCapacity();
+                    } else {
+                        numberOfNights = 0;
+                        document.getElementById('price-summary').classList.add('hidden');
+                        document.getElementById('room-selection').classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        function initCarousel() {
+            const track = document.getElementById('track');
+            if(!track) return;
+            const items = Array.from(document.querySelectorAll('.carousel-item'));
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            let currentIndex = 1; 
+            function updateCarousel() {
+                const itemWidth = items[0].offsetWidth;
+                const gap = window.innerWidth < 768 ? 16 : 32;
+                const totalUnitWidth = itemWidth + gap;
+                const offset = -((currentIndex * totalUnitWidth) + (itemWidth / 2));
+                track.style.transform = `translateX(${offset}px)`;
+                items.forEach((item, index) => {
+                    const overlay = item.querySelector('.overlay-layer');
+                    const content = item.querySelector('.content-layer');
+                    if (index === currentIndex) {
+                        item.style.transform = 'scale(1)'; item.style.zIndex = '20';
+                        overlay.style.backgroundColor = 'rgba(255, 255, 255, 0)'; 
+                        content.style.opacity = '1'; content.style.transform = 'translateY(0)';
+                    } else {
+                        item.style.transform = 'scale(0.85)'; item.style.zIndex = '10';
+                        overlay.style.backgroundColor = 'rgba(255, 255, 255, 0.6)'; 
+                        content.style.opacity = '0'; content.style.transform = 'translateY(20px)';
+                    }
+                });
+            }
+            nextBtn.addEventListener('click', () => { currentIndex < items.length - 1 ? currentIndex++ : currentIndex = 0; updateCarousel(); });
+            prevBtn.addEventListener('click', () => { currentIndex > 0 ? currentIndex-- : currentIndex = items.length - 1; updateCarousel(); });
+            window.addEventListener('resize', updateCarousel);
+            setTimeout(updateCarousel, 100);
+        }
+    </script>
+</body>
+</html>
