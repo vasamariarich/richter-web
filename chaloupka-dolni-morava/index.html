@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="cs" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chaloupka Dolní Morava - Jeseníky</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- FONTY --- */
+        body { font-family: 'Jost', sans-serif; }
+        
+        /* --- KALENDÁŘ STYLING --- */
+        .flatpickr-calendar { background: transparent !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+        .flatpickr-months { padding-top: 10px; padding-bottom: 20px; }
+        .flatpickr-month { height: 40px !important; }
+        .flatpickr-current-month { font-weight: 700; font-size: 1.1rem; color: #292f36; padding-top: 0 !important; }
+        .flatpickr-current-month input.cur-year { font-weight: 700; }
+        .flatpickr-weekday { color: #9ca3af !important; font-weight: 400 !important; font-size: 0.9rem !important; }
+        
+        .dayContainer { justify-content: flex-start !important; }
+        
+        .flatpickr-day { 
+            color: #4b5563; 
+            font-weight: 400; 
+            border-radius: 0; 
+            height: 40px; 
+            line-height: 40px; 
+            margin-top: 2px;
+            max-width: 14.2857% !important; 
+            flex-basis: 14.2857% !important;
+        }
+        
+        .flatpickr-day.today { border-color: transparent !important; background: #f3f4f6; }
+        
+        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
+            background: #9E6036 !important; color: #fff !important; border-color: #9E6036 !important;
+        }
+        .flatpickr-day.inRange {
+            background: #e5e7eb !important; color: #4b5563 !important;
+            box-shadow: -5px 0 0 #e5e7eb, 5px 0 0 #e5e7eb !important; border-color: #e5e7eb !important;
+        }
+
+        /* --- Toggle Switch Styling --- */
+        .room-checkbox { display: none; }
+        
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background-color: #d1d5db; 
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .room-checkbox:checked + .toggle-switch { background-color: #9E6036; }
+        .room-checkbox:checked + .toggle-switch::after { transform: translateX(20px); }
+
+        /* --- CAROUSEL ANIMACE --- */
+        .carousel-item {
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out, filter 0.5s ease-in-out;
+            will-change: transform;
+        }
+        .overlay-layer { transition: background-color 0.5s ease-in-out; }
+        .content-layer { transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
+
+        /* --- SKRYTÍ SCROLLBARU PRO GALERII V MODALU --- */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Custom colors rewrite (Teplá roubenková hnědá) */
+        .text-primary { color: #9E6036; }
+        .bg-primary { background-color: #9E6036; }
+        .hover\:bg-primaryHover:hover { background-color: #804a29; }
+        .selection\:bg-primary::selection { background-color: #9E6036; }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    /* Teplá roubenková paleta */
+                    colors: { primary: '#9E6036', primaryHover: '#804a29', secondary: '#292f36', beige: '#F9F8F6' },
+                    fontFamily: { sans: ['"Jost"', 'sans-serif'], serif: ['"Jost"', 'serif'], }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-sans text-secondary antialiased bg-white selection:bg-primary selection:text-white">
+
+    <header id="hero" class="relative m-3 h-[calc(100vh-1.5rem)] min-h-[600px] rounded-[10px] overflow-hidden flex flex-col bg-cover bg-center shadow-lg" style="background-image: url('./images/hero-bg.jpg');">        
+        <div class="absolute inset-0 bg-black/50 z-0"></div>
+
+        <nav id="navbar" class="fixed top-0 left-0 w-full z-50 py-8 px-6 md:px-12 flex items-center justify-between text-white transition-all duration-300">
+            
+            <div class="hidden xl:flex gap-4 xl:gap-5 2xl:gap-8 items-center text-xs xl:text-sm 2xl:text-base tracking-wider font-bold uppercase w-[42%] justify-start whitespace-nowrap z-10">
+                <a href="#about" class="transition-opacity duration-300 hover:text-primary">O chaloupce</a>
+                <a href="#history" class="transition-opacity duration-300 hover:text-primary">Historie</a>
+                <a href="#dispozice" class="transition-opacity duration-300 hover:text-primary">Vybavení</a>
+                <a href="#trips" class="transition-opacity duration-300 hover:text-primary">Okolí</a>
+                <a href="#gallery" class="transition-opacity duration-300 hover:text-primary">Galerie</a>
+            </div>
+
+            <a href="#" class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-lg md:text-2xl font-bold tracking-widest md:tracking-[0.2em] uppercase text-center whitespace-nowrap z-50 text-white">
+                Chaloupka<br><span class="font-bold text-primary text-sm md:text-xl block mt-0.5 md:mt-0">Dolní Morava</span>
+            </a>
+
+            <div class="hidden xl:flex items-center justify-end gap-6 w-[42%] z-10">
+                <a href="#reservation" class="bg-gray-900/50 hover:bg-primary border border-white/20 backdrop-blur-sm px-6 py-3.5 xl:px-8 xl:py-4 rounded-md text-xs xl:text-sm 2xl:text-base font-bold tracking-widest uppercase transition duration-300 flex items-center gap-3">
+                    <i class="fa-regular fa-calendar-check text-lg"></i> Ceník a Rezervace
+                </a>
+            </div>
+
+            <button id="mobile-menu-btn" class="xl:hidden text-2xl text-white focus:outline-none z-50 ml-auto relative">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+
+        <div id="mobile-menu" class="hidden fixed top-0 left-0 w-full h-full bg-gray-900/95 backdrop-blur-xl text-white z-[60] flex flex-col items-center justify-center space-y-8">
+            <button id="mobile-menu-close" class="absolute top-8 right-8 text-3xl text-white hover:text-primary"><i class="fa-solid fa-xmark"></i></button>
+            <a href="#about" class="text-xl uppercase tracking-widest hover:text-primary">O chaloupce</a>
+            <a href="#history" class="text-xl uppercase tracking-widest hover:text-primary">Historie</a>
+            <a href="#dispozice" class="text-xl uppercase tracking-widest hover:text-primary">Vybavení</a>
+            <a href="#trips" class="text-xl uppercase tracking-widest hover:text-primary">Okolí</a>
+            <a href="#gallery" class="text-xl uppercase tracking-widest hover:text-primary">Galerie</a>
+            <a href="#reservation" class="text-xl uppercase tracking-widest text-primary">Ceník a Kontakt</a>
+        </div>
+
+        <div class="relative z-10 flex-grow flex flex-col items-center justify-center text-center text-white px-4 animate-fade-in pt-24 md:pt-40">
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-tight drop-shadow-lg uppercase">
+                Pohodové<br>ubytování
+            </h1>
+            
+            <div class="my-6 text-white/80">
+                <svg width="80" height="15" viewBox="0 0 60 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 5C1 5 6 1 10.5 1C15 1 20 9 24.5 9C29 9 34 1 38.5 1C43 1 48 9 52.5 9C57 9 59 5 59 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+
+            <p class="font-serif italic text-xl md:text-2xl text-white/90 font-normal tracking-wide drop-shadow-md max-w-3xl">
+                Přijeďte načerpat energii do naší původní, roubené chaloupky<br>pod Králickým Sněžníkem. Buďte u nás jako doma.
+            </p>
+        </div>
+
+        <div class="relative z-10 pb-8 flex justify-center w-full animate-bounce mt-auto">
+            <a href="#welcome" class="w-10 h-10 border border-white/30 rounded-full flex items-center justify-center text-white hover:bg-white hover:text-secondary transition duration-300 backdrop-blur-sm">
+                <i class="fa-solid fa-arrow-down"></i>
+            </a>
+        </div>
+    </header>
+
+    <section id="welcome" class="py-24 md:py-32 bg-white text-center">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <span class="block text-xs font-bold tracking-[0.2em] uppercase mb-5 text-secondary">
+                Vítejte u nás
+            </span>
+            
+            <h2 class="text-4xl md:text-6xl font-bold text-secondary mb-8 leading-tight">
+                Odpočívejte, rozjímejte<br>a buďte jako doma
+            </h2>
+            
+            <div class="text-primary mb-8 flex justify-center">
+                <svg width="60" height="10" viewBox="0 0 60 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 5C1 5 6 1 10.5 1C15 1 20 9 24.5 9C29 9 34 1 38.5 1C43 1 48 9 52.5 9C57 9 59 5 59 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            
+            <p class="text-gray-500 font-serif text-lg leading-relaxed max-w-2xl mx-auto">
+                Načerpejte novou energii v údajně jedné z nejhezčích původních, roubených chalup Dolní Moravy, jejíž "mládí" čítá přibližně 180 let. Chaloupku máte celou sami pro sebe.
+                <br><br>
+                Protáhněte se a posnídejte na prosluněné terase, připravte si nápoj z naší čerstvé máty, zajděte si do lesa na borůvky nebo lesní jahůdky a večer poseďte u grilu. 
+            </p>
+            
+            <div class="mt-8 flex flex-wrap justify-center gap-2">
+                 <span class="inline-block bg-primary/10 text-primary px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider">Až 6 osob</span>
+                 <span class="inline-block bg-gray-100 text-gray-600 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider">180 let stará roubenka</span>
+                 <span class="inline-block bg-primary/10 text-primary px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider">Dolní Morava</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="history" class="py-24 bg-[#F9F8F6] border-t border-gray-100">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col lg:flex-row gap-16 items-center">
+                
+                <div class="w-full lg:w-1/2">
+                    <span class="block text-primary font-bold tracking-[0.2em] text-sm uppercase mb-4">O nás</span>
+                    <h2 class="text-4xl lg:text-5xl font-bold text-secondary mb-6 leading-tight">Historické okénko :-)</h2>
+                    
+                    <div class="space-y-4 text-gray-500 text-sm leading-relaxed font-serif">
+                        <p>
+                            Chaloupku vlastní naše rodina od roku 1968, kdy na možnost její koupě upozornil naše rodiče kamarád Luboš Kanýz. Rodiče, Miroslav a Zdeňka Jelínkovi, se do oblasti Králického Sněžníku, kde tehdy "dávaly lišky dobrou noc", naprosto zamilovali.
+                        </p>
+                        <p>
+                            Nebyla právě v nejlepším stavu, byla to skromná "pastouška" s hliněnými podlahami, špatnou střechou a bez vody či elektřiny. Na chaloupku jezdili z Brna každých 14 dnů a dávali ji postupně do pořádku. Svoji současnou podobu nabyla až v roce 1983 a naši péči si zaslouží stále.
+                        </p>
+                        <p>
+                            První písemná zmínka o vsi Velká Morava pochází z roku 1564. Roubené domy se zde do dnešních dnů zachovaly jen čtyři, kdy se většinou jedná o bývalé výměnky usedlostí (tím je i naše chaloupka čp. 54). Naše chaloupka je památkáři NPÚ Pardubice zařazena mezi historicky cenné stavby.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="w-full lg:w-1/2 flex flex-col gap-6">
+                    <div class="relative rounded-2xl overflow-hidden shadow-xl group">
+                        <img src="./images/historie-1.webp" alt="Chaloupka v roce 1968" class="w-full h-[250px] md:h-[300px] object-cover transition duration-700 group-hover:scale-105">
+                        <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest text-secondary shadow-sm">
+                            1968 – Takhle vypadala, když jsme ji koupili
+                        </div>
+                    </div>
+                    <div class="relative rounded-2xl overflow-hidden shadow-xl group">
+                        <img src="./images/historie-2.webp" alt="Rodinné foto / úpravy" class="w-full h-[250px] md:h-[300px] object-cover transition duration-700 group-hover:scale-105">
+                        <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest text-secondary shadow-sm">
+                            Srdce naší rodiny
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="dispozice" class="py-24 bg-white overflow-hidden">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="block text-primary font-bold tracking-[0.2em] text-sm uppercase mb-3">Vybavení chaloupky</span>
+                <h2 class="text-4xl font-bold uppercase text-secondary">Vše pro Váš absolutní komfort</h2>
+                <p class="mt-4 text-gray-500 max-w-2xl mx-auto">Protože chaloupka slouží převážně naší rodině, dali jsme si záležet na tom, aby zde nechybělo vůbec nic z toho, co k pohodlnému životu potřebujete.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+                <div class="bg-gray-50 p-8 rounded-2xl border border-gray-100 hover:shadow-lg transition duration-300">
+                    <div class="w-14 h-14 bg-primary/10 text-primary rounded-full flex items-center justify-center text-2xl mb-6">
+                        <i class="fa-solid fa-kitchen-set"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-secondary mb-4 uppercase tracking-wider">Kulinářský ráj</h3>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Sklokeramická varná deska</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Horkovzdušná trouba s grilem</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Mikrovlnka a lednice</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Kávovar, mokka konvička, mlýnek na kávu a překápavač</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Panini gril a toustovač</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Ruční a tyčový mixér</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 p-8 rounded-2xl border border-gray-100 hover:shadow-lg transition duration-300">
+                    <div class="w-14 h-14 bg-primary/10 text-primary rounded-full flex items-center justify-center text-2xl mb-6">
+                        <i class="fa-solid fa-bed"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-secondary mb-4 uppercase tracking-wider">Klidný spánek</h3>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Dvojlůžko 180x200</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Dvojlůžko 160x200</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Rozkládací křeslo a lehátko</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Šatní skříň s ramínky</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Zásuvky u postele a noční stolky</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Přímotopy pro tepelný komfort</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 p-8 rounded-2xl border border-gray-100 hover:shadow-lg transition duration-300">
+                    <div class="w-14 h-14 bg-primary/10 text-primary rounded-full flex items-center justify-center text-2xl mb-6">
+                        <i class="fa-solid fa-shower"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-secondary mb-4 uppercase tracking-wider">Koupelna</h3>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Sprcha s hlubokou vaničkou</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Klasické WC</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Vysoušeč vlasů (fén)</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Žehlička na vlasy</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Základní toaletní potřeby</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 p-8 rounded-2xl border border-gray-100 hover:shadow-lg transition duration-300">
+                    <div class="w-14 h-14 bg-primary/10 text-primary rounded-full flex items-center justify-center text-2xl mb-6">
+                        <i class="fa-solid fa-tree"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-secondary mb-4 uppercase tracking-wider">Zahrada & Relax</h3>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Zahradní nábytek a slunečník</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Gril vč. grilovacího uhlí</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> TV a rádio pro večery uvnitř</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Hole na Nordic walking</li>
+                        <li><i class="fa-solid fa-check text-primary mr-2"></i> Úschova kol v garáži/lyžárně</li>
+                        <li><i class="fa-solid fa-paw text-primary mr-2"></i> Vychovaný pes/kočka povolen</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="py-24 bg-primary/5 overflow-hidden">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col lg:flex-row items-center relative">
+                <div class="w-full lg:w-1/2 relative z-10 order-2 lg:order-1 mt-10 lg:mt-0 lg:pr-16">
+                    <span class="block text-primary font-bold tracking-[0.2em] text-sm uppercase mb-4">Pro nejmenší hosty</span>
+                    <h2 class="text-3xl md:text-5xl font-bold text-secondary mb-6 leading-tight">Jedete k nám s dětmi? <br>Jsme připraveni.</h2>
+                    <p class="text-gray-500 font-serif text-lg leading-relaxed mb-8">
+                        Víme, jak je cestování s dětmi náročné na zavazadla. Abyste toho nemuseli balit tolik, nabízíme Vám možnost zapůjčení dětského vybavení **zdarma na vyžádání**. Stačí nám dát vědět předem!
+                    </p>
+                    <ul class="space-y-4 font-bold text-secondary text-lg">
+                        <li class="flex items-center"><i class="fa-solid fa-baby-carriage text-primary text-2xl w-10"></i> Skládací dětská postýlka</li>
+                        <li class="flex items-center"><i class="fa-solid fa-chair text-primary text-2xl w-10"></i> Dětská jídelní židlička</li>
+                        <li class="flex items-center"><i class="fa-solid fa-water text-primary text-2xl w-10"></i> Dětský bazének na zahradu</li>
+                        <li class="flex items-center"><i class="fa-solid fa-bucket text-primary text-2xl w-10"></i> Dětské pískoviště včetně hraček</li>
+                    </ul>
+                </div>
+                <div class="w-full lg:w-1/2 h-[400px] md:h-[500px] relative rounded-3xl overflow-hidden shadow-2xl group order-1 lg:order-2">
+                    <img src="./images/deti.jpg" alt="Vybavení pro děti" class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+                </div>
+            </div>
+        </div>
+    </section>
+
+   <section id="trips" class="py-24 bg-white overflow-hidden relative">
+        <div class="container mx-auto px-6 mb-10 text-center">
+            <span class="block text-primary font-bold tracking-[0.2em] text-sm uppercase mb-3">Kam v okolí</span>
+            <h2 class="text-4xl font-bold text-secondary uppercase">Milujeme klidnou přírodu</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mt-6 rounded-full"></div>
+            <p class="mt-6 text-gray-500 max-w-2xl mx-auto">Naše rodina miluje přírodu, proto upřednostňujeme nekomerční aktivity, které stvořila příroda a jsou většinou zdarma.</p>
+        </div>
+
+        <div class="relative w-full h-[400px] md:h-[550px] flex items-center justify-center">
+
+            <button id="prevBtn" class="absolute left-4 md:left-10 z-30 w-12 h-12 md:w-16 md:h-16 bg-white/80 hover:bg-white text-secondary rounded-full shadow-lg flex items-center justify-center transition hover:scale-110 focus:outline-none backdrop-blur-sm">
+                <i class="fa-solid fa-arrow-left text-xl"></i>
+            </button>
+
+            <button id="nextBtn" class="absolute right-4 md:right-10 z-30 w-12 h-12 md:w-16 md:h-16 bg-white/80 hover:bg-white text-secondary rounded-full shadow-lg flex items-center justify-center transition hover:scale-110 focus:outline-none backdrop-blur-sm">
+                <i class="fa-solid fa-arrow-right text-xl"></i>
+            </button>
+
+            <div id="track" class="flex gap-4 md:gap-8 items-center absolute left-1/2 transition-transform duration-500 ease-out will-change-transform">
+                
+                <div class="carousel-item relative flex-shrink-0 w-[80vw] md:w-[650px] h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-2xl cursor-pointer group">
+                    <img src="./images/trip-1.jpg" class="absolute inset-0 w-full h-full object-cover" alt="Králický Sněžník">
+                    <div class="overlay-layer absolute inset-0 bg-white/60 z-10"></div>
+                    <div class="content-layer absolute bottom-0 left-0 w-full p-8 z-20 opacity-0 transition-opacity duration-500 text-white bg-gradient-to-t from-black/80 via-black/30 to-transparent translate-y-4">
+                        <small class="block text-white font-bold text-xs uppercase tracking-widest mb-1">Turistika</small>
+                        <h3 class="text-3xl font-bold font-serif text-white">Králický Sněžník a Pramen</h3>
+                        <p class="text-white/90 text-sm mt-2">Pěší výstup k pramenu řeky Moravy (cca 13,5 km). Možno využít lanovku na Slaměnku.</p>
+                    </div>
+                </div>
+
+                <div class="carousel-item relative flex-shrink-0 w-[80vw] md:w-[650px] h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-2xl cursor-pointer group">
+                    <img src="./images/trip-2.jpg" class="absolute inset-0 w-full h-full object-cover" alt="Vrch Klepý">
+                    <div class="overlay-layer absolute inset-0 bg-white/60 z-10"></div>
+                    <div class="content-layer absolute bottom-0 left-0 w-full p-8 z-20 opacity-0 transition-opacity duration-500 text-white bg-gradient-to-t from-black/80 via-black/30 to-transparent translate-y-4">
+                        <small class="block text-white font-bold text-xs uppercase tracking-widest mb-1">Výhledy</small>
+                        <h3 class="text-3xl font-bold font-serif text-white">Rozhledna Klepý</h3>
+                        <p class="text-white/90 text-sm mt-2">Hřebenová trasa přes vrch Klepý poskytuje podstatně lepší výhled než komerční Stezka v oblacích.</p>
+                    </div>
+                </div>
+
+                <div class="carousel-item relative flex-shrink-0 w-[80vw] md:w-[650px] h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-2xl cursor-pointer group">
+                    <img src="./images/trip-3.jpg" class="absolute inset-0 w-full h-full object-cover" alt="Koupání a Přehrady">
+                    <div class="overlay-layer absolute inset-0 bg-white/60 z-10"></div>
+                    <div class="content-layer absolute bottom-0 left-0 w-full p-8 z-20 opacity-0 transition-opacity duration-500 text-white bg-gradient-to-t from-black/80 via-black/30 to-transparent translate-y-4">
+                        <small class="block text-white font-bold text-xs uppercase tracking-widest mb-1">Osvěžení</small>
+                        <h3 class="text-3xl font-bold font-serif text-white">Voda a Koupání</h3>
+                        <p class="text-white/90 text-sm mt-2">Otužování v řece Moravě, koupaliště Králíky, šlapadla na přehradě Pastviny nebo termály Velké Losiny.</p>
+                    </div>
+                </div>
+
+                <div class="carousel-item relative flex-shrink-0 w-[80vw] md:w-[650px] h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-2xl cursor-pointer group">
+                    <img src="./images/trip-4.jpg" class="absolute inset-0 w-full h-full object-cover" alt="Pěchotní sruby">
+                    <div class="overlay-layer absolute inset-0 bg-white/60 z-10"></div>
+                    <div class="content-layer absolute bottom-0 left-0 w-full p-8 z-20 opacity-0 transition-opacity duration-500 text-white bg-gradient-to-t from-black/80 via-black/30 to-transparent translate-y-4">
+                        <small class="block text-white font-bold text-xs uppercase tracking-widest mb-1">Historie a Sport</small>
+                        <h3 class="text-3xl font-bold font-serif text-white">Srub K-S 5 & Cyklotraily</h3>
+                        <p class="text-white/90 text-sm mt-2">Skvěle zrekonstruovaný pěchotní srub a obrovské množství cyklotras pro všechny věkové kategorie.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 bg-secondary text-white relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="block text-primary font-bold tracking-[0.2em] text-sm uppercase mb-3">Atrakce a Komerce</span>
+                <h2 class="text-4xl font-bold uppercase text-white">Adrenalin na Dolní Moravě</h2>
+                <div class="w-24 h-1 bg-primary mx-auto mt-6 rounded-full"></div>
+                <p class="mt-4 text-gray-400 max-w-2xl mx-auto">V obci Dolní Morava si přijdou na své i ti, kteří vyhledávají moderní atrakce, zábavní parky a adrenalinové zážitky pro celou rodinu.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                <div class="bg-white/5 border border-white/10 p-6 rounded-2xl flex items-center gap-4 hover:bg-primary/20 transition">
+                    <div class="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-bridge"></i></div>
+                    <h4 class="font-bold tracking-wider uppercase text-sm">Sky Bridge 721</h4>
+                </div>
+                <div class="bg-white/5 border border-white/10 p-6 rounded-2xl flex items-center gap-4 hover:bg-primary/20 transition">
+                    <div class="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-cloud"></i></div>
+                    <h4 class="font-bold tracking-wider uppercase text-sm">Stezka v oblacích</h4>
+                </div>
+                <div class="bg-white/5 border border-white/10 p-6 rounded-2xl flex items-center gap-4 hover:bg-primary/20 transition">
+                    <div class="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-water-ladder"></i></div>
+                    <h4 class="font-bold tracking-wider uppercase text-sm">Mamutíkův vodní park</h4>
+                </div>
+                <div class="bg-white/5 border border-white/10 p-6 rounded-2xl flex items-center gap-4 hover:bg-primary/20 transition">
+                    <div class="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-train-tram"></i></div>
+                    <h4 class="font-bold tracking-wider uppercase text-sm">Mamutí horská dráha</h4>
+                </div>
+                <div class="bg-white/5 border border-white/10 p-6 rounded-2xl flex items-center gap-4 hover:bg-primary/20 transition">
+                    <div class="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-person-running"></i></div>
+                    <h4 class="font-bold tracking-wider uppercase text-sm">Adrenalin lanový park</h4>
+                </div>
+                <div class="bg-white/5 border border-white/10 p-6 rounded-2xl flex items-center gap-4 hover:bg-primary/20 transition">
+                    <div class="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-dungeon"></i></div>
+                    <h4 class="font-bold tracking-wider uppercase text-sm">Stamichmanova štola</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-primary text-white text-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('./images/hero-bg.webp')] opacity-10 bg-cover bg-center mix-blend-overlay"></div>
+        <div class="container mx-auto px-6 relative z-10 max-w-4xl">
+            <h2 class="text-4xl font-bold uppercase tracking-wider mb-6">Máte zajímavou nemovitost nebo šikovné ruce?</h2>
+            <p class="text-lg font-serif mb-10 text-white/90">
+                Nabízíme a preferujeme možnost výměny nemovitosti k rekreaci, nebo si pobyt u nás můžete zkrátka odpracovat. Chaloupka na prodej není, ale rádi poznáme nové lidi!
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                <div class="bg-black/20 p-6 rounded-xl border border-white/20">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-house-chimney text-white/50 mr-2"></i> Výměna pobytu</h3>
+                    <p class="text-sm text-white/80">Vlastníte chatu či dům v zajímavé lokalitě? My na té naší pořád pracujeme a odpočineme si rádi jinde. Nabídněte nám ji k vzájemné výměně.</p>
+                </div>
+                <div class="bg-black/20 p-6 rounded-xl border border-white/20">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-hammer text-white/50 mr-2"></i> Odpracování pobytu</h3>
+                    <p class="text-sm text-white/80">Jste řemeslníci nebo šikovní kutilové? Chtěli byste k nám jezdit častěji a pomoct s opravami? Rádi se dohodneme na férových podmínkách.</p>
+                </div>
+            </div>
+            <div class="mt-10">
+                <a href="#reservation" class="inline-block bg-white text-primary px-8 py-4 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-gray-100 transition shadow-xl">
+                    Napište nám svůj návrh
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 bg-[#F9F8F6] relative">
+        <div class="absolute top-10 right-10 text-9xl text-gray-200 font-serif pointer-events-none">“</div>
+        <div class="container mx-auto px-6 relative z-10 text-center">
+            <div class="text-center mb-10">
+                <span class="block text-primary font-bold tracking-[0.2em] text-sm uppercase mb-3">Z našich referencí</span>
+                <h2 class="text-4xl font-bold uppercase text-secondary">Spokojení hosté</h2>
+                <div class="flex justify-center gap-2 mt-4 text-primary text-xl">
+                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left max-w-4xl mx-auto">
+                <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <p class="text-gray-500 italic mb-6 leading-relaxed">"Roztomilá, skvěle vybavená chaloupka, pohodoví majitelé, kteří nám poskytli spoustu informací o výletech a aktivitách v blízkém okolí. Děkujeme za možnost si chaloupku půjčit."</p>
+                    <p class="text-primary font-bold text-xs uppercase">- Markéta a Jan s rodinou (7/2023)</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <p class="text-gray-500 italic mb-6 leading-relaxed">"Byli jsme moc spokojení. Klid, pohoda, chaloupka má veškeré potřebné vybavení. Děkujeme, rádi zase přijedeme."</p>
+                    <p class="text-primary font-bold text-xs uppercase">- rodina Poláčkova z Ostravy (09/2023)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="gallery" class="py-24 bg-white border-b border-gray-100">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="block text-primary font-bold tracking-[0.2em] text-sm uppercase mb-3">Fotogalerie</span>
+                <h2 class="text-4xl font-bold text-secondary uppercase">Naše roubenka</h2>
+                <div class="w-24 h-1 bg-primary mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[250px]">
+                <div class="col-span-1 sm:col-span-2 md:col-span-2 md:row-span-2 relative overflow-hidden rounded-2xl group cursor-pointer" onclick="openImageModal(this.querySelector('img').src)">
+                    <img src="./images/chaloupka-1.jpg" alt="Exteriér chaloupky" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition duration-500"></div>
+                </div>
+                <div class="relative overflow-hidden rounded-2xl group cursor-pointer" onclick="openImageModal(this.querySelector('img').src)">
+                    <img src="./images/chaloupka-2.jpg" alt="Zahrada a terasa" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition duration-500"></div>
+                </div>
+                <div class="relative overflow-hidden rounded-2xl group cursor-pointer" onclick="openImageModal(this.querySelector('img').src)">
+                    <img src="./images/chaloupka-3.jpg" alt="Kuchyňský kout" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition duration-500"></div>
+                </div>
+                <div class="relative overflow-hidden rounded-2xl group cursor-pointer" onclick="openImageModal(this.querySelector('img').src)">
+                    <img src="./images/chaloupka-4.jpg" alt="Ložnice hlavní" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition duration-500"></div>
+                </div>
+                <div class="relative overflow-hidden rounded-2xl group cursor-pointer" onclick="openImageModal(this.querySelector('img').src)">
+                    <img src="./images/chaloupka-5.jpg" alt="Koupelna" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition duration-500"></div>
+                </div>
+                <div class="relative overflow-hidden rounded-2xl group cursor-pointer" onclick="openImageModal(this.querySelector('img').src)">
+                    <img src="./images/chaloupka-6.jpg" alt="Detail obývací prostor" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition duration-500"></div>
+                </div>
+                <div class="relative overflow-hidden rounded-2xl group cursor-pointer" onclick="openImageModal(this.querySelector('img').src)">
+                    <img src="./images/chaloupka-7.jpg" alt="Posezení u grilu" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition duration-500"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="reservation" class="py-32 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+                
+                <div class="lg:col-span-4 lg:pt-4">
+                    <span class="block text-primary font-bold tracking-[0.2em] text-xs uppercase mb-6">Rezervace</span>
+                    <h2 class="text-4xl lg:text-5xl font-bold text-secondary mb-8 leading-tight">Ceník & Poptávka</h2>
+                    
+                    <div class="text-gray-600 leading-relaxed mb-8 text-sm font-light space-y-4">
+                        <p class="font-bold text-xl text-primary mb-2">od 350 Kč / os. / noc</p>
+                        <p class="text-xs italic mb-4">(*cena orientační, vypočtena při plném obsazení 6 osobami)</p>
+                        
+                        <div class="border-l-4 border-primary pl-4">
+                            <strong class="block text-secondary">Podmínky pobytu</strong>
+                            Minimální počet nocí = 6<br>
+                            Příjezd: 16:30 - 18:00 | Odjezd: 11:00 - 12:00
+                        </div>
+
+                        <div class="border-l-4 border-secondary pl-4">
+                            <strong class="block text-secondary">Poplatky navíc</strong>
+                            Místní poplatek obci: 30 Kč/os./noc<br>
+                            Voda a elektřina: dle skutečné spotřeby
+                        </div>
+                        
+                        <p class="text-xs mt-4">
+                            <strong>Důležité:</strong> Ložní prádlo a ručníky si berete vlastní. Chaloupku vracíte uklizenou (veškeré prostředky jsou k dispozici).
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="inline-flex items-center gap-4 group">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-gray-500 uppercase tracking-[0.2em] font-bold">Email</span>
+                                <a href="mailto:ChaloupkaDolniMorava@seznam.cz" class="text-secondary text-sm font-bold tracking-wide hover:text-primary transition">ChaloupkaDolniMorava@seznam.cz</a>
+                            </div>
+                        </div>
+                        <div class="inline-flex items-center gap-4 group">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
+                                <i class="fa-solid fa-phone"></i>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-gray-500 uppercase tracking-[0.2em] font-bold">Telefony / WhatsApp</span>
+                                <span class="text-secondary text-sm font-bold block">+420 732 405 333</span>
+                                <span class="text-secondary text-sm font-bold block">+420 605 104 913</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-8">
+                    <div class="bg-[#F9F8F6] p-8 md:p-12 rounded-[2rem] shadow-xl border border-gray-100">
+                        <form id="bookingForm" onsubmit="event.preventDefault(); alert('Poptávka odeslána! Budeme vás kontaktovat.');">
+                            
+                            <h3 class="text-xl font-bold text-secondary mb-6">Nezávazná poptávka termínu</h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                                <div>
+                                    <label class="block text-sm text-gray-600 font-light mb-3">Počet dospělých</label>
+                                    <div class="relative group">
+                                        <select id="adults" class="w-full bg-white text-gray-700 h-14 pl-6 pr-10 rounded-lg appearance-none focus:outline-none cursor-pointer shadow-sm text-sm font-medium border border-gray-100" onchange="updateGuestLogic()">
+                                        </select>
+                                        <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 font-light mb-3">Počet dětí</label>
+                                    <div class="relative group">
+                                        <select id="children" class="w-full bg-white text-gray-700 h-14 pl-6 pr-10 rounded-lg appearance-none focus:outline-none cursor-pointer shadow-sm text-sm font-medium border border-gray-100" onchange="toggleChildAges(this.value); updateGuestLogic()">
+                                        </select>
+                                        <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="child_ages_container" class="grid grid-cols-2 gap-4 mb-8 hidden"></div>
+
+                            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100 mb-6">
+                                <label class="block text-sm text-gray-600 font-light mb-3">Vyberte termín pobytu (min. 6 nocí)</label>
+                                <input type="text" id="inline-calendar-input" class="hidden">
+                            </div>
+
+                            <div id="room-selection" class="hidden mb-6 p-4 border border-primary/20 bg-primary/5 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                     <div class="flex items-center gap-3">
+                                         <input type="checkbox" id="room1" class="room-checkbox" checked disabled>
+                                         <div class="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-white text-xs"><i class="fa-solid fa-check"></i></div>
+                                         <span class="font-bold text-secondary">Celá chaloupka (až 6 osob)</span>
+                                     </div>
+                                </div>
+                                <div id="capacity-warning" class="text-red-500 font-medium text-xs mt-2 hidden"></div>
+                            </div>
+
+                            <div id="price-summary" class="hidden mb-6">
+                                <p class="text-secondary font-bold text-base md:text-lg mb-1" id="price-text"></p>
+                                <p class="text-xs text-orange-600 font-bold">* Výpočet je orientační při plném obsazení. Neobsahuje poplatky obci a energie. Finální cenu Vám potvrdíme.</p>
+                            </div>
+
+                            <div class="flex justify-end mb-10">
+                                <button type="submit" id="submitBtn" class="bg-secondary border-2 border-secondary text-white font-bold uppercase tracking-widest text-xs px-10 py-4 rounded-full hover:bg-gray-800 transition shadow-lg opacity-50 cursor-not-allowed" disabled>
+                                    Odeslat poptávku
+                                </button>
+                            </div>
+
+                        </form>
+
+                        <details class="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 transition-all duration-300">
+                            <summary class="font-bold text-secondary cursor-pointer list-none flex justify-between items-center text-sm uppercase tracking-wider">
+                                <span><i class="fa-solid fa-file-contract text-primary mr-2 text-lg"></i> Provozní řád a Storno podmínky</span>
+                                <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform text-gray-400"></i>
+                            </summary>
+                            <div class="mt-6 text-xs text-gray-600 space-y-5 border-t border-gray-100 pt-5 max-h-96 overflow-y-auto pr-2 font-serif leading-relaxed">
+                                <div>
+                                    <h4 class="font-bold text-secondary text-sm font-sans mb-2">Provozní řád</h4>
+                                    <ul class="list-disc pl-4 space-y-2">
+                                        <li>Nájemce udržuje pořádek uvnitř i venku. Zákaz odhazování odpadků mimo určená místa.</li>
+                                        <li><strong class="text-primary">V celé obytné části vyžadujeme přezutí!</strong> Přezůvky jsou na místě k zapůjčení.</li>
+                                        <li>Zákaz manipulace s rozvody vody, krbu a termostaty (vyjma bojleru). V létě nepoužívejte krbovou vložku. K topení slouží olejový radiátor v ložnici.</li>
+                                        <li>Používání pyrotechniky je možné pouze se souhlasem pronajímatele.</li>
+                                        <li>Zvířata pouze po domluvě a s platným očkovacím průkazem. Nenechávejte zvířata samotná v chalupě.</li>
+                                        <li>Zákaz používání vlastních elektrospotřebičů (kromě osobní hygieny jako fén, holicí strojek). Po použití (kávovar, toustovač...) vytáhněte ze zásuvky.</li>
+                                        <li>Úschova kol je možná v garáži nebo lyžárně. Zákaz úprav a přemisťování vybavení.</li>
+                                    </ul>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-bold text-secondary text-sm font-sans mb-2">Zodpovědnost za škody</h4>
+                                    <ul class="list-disc pl-4 space-y-2">
+                                        <li>Pobyt je na vlastní zodpovědnost. Pronajímatel nepojišťuje zdraví nájemců. Nenechávejte děti bez dozoru.</li>
+                                        <li>Zabezpečte své věci proti zcizení (včetně aut).</li>
+                                        <li>V případě poškození majetku z nedbalosti je nájemce povinen škodu uhradit do 15 dnů (pořízen videozáznam vybavení).</li>
+                                        <li>Při nevratném poškození (čalounění, matrace) hradí nájemce plnou novou pořizovací cenu. Při znehodnocení malby hradí vymalování celé místnosti.</li>
+                                        <li>Lékárnička je k dispozici v trojdílné skříni v ložnici. Ohlašovny: 112, 155, 150, 158. Pronajímatel: 732 405 333.</li>
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-bold text-secondary text-sm font-sans mb-2">Storno podmínky</h4>
+                                    <ul class="list-disc pl-4 space-y-2">
+                                        <li>Min. 21 dnů před příjezdem: vráceno 100 % částky/kauce.</li>
+                                        <li>Min. 14 dnů před příjezdem: vráceno 70 % částky/kauce.</li>
+                                        <li>Min. 7 dnů před příjezdem: vráceno 40 % částky/kauce.</li>
+                                        <li>Méně než 6 dnů před příjezdem: propadá 100 % částky/kauce.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </details>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="map" class="w-full h-[500px] relative">
+        <iframe 
+            width="100%" 
+            height="100%" 
+            frameborder="0" 
+            scrolling="no" 
+            marginheight="0" 
+            marginwidth="0" 
+            title="Mapa Chaloupka Dolní Morava"
+            src="https://maps.google.com/maps?q=Velk%C3%A1%20Morava%2054,%20Doln%C3%AD%20Morava&t=&z=13&ie=UTF8&iwloc=&output=embed"
+            style="filter: grayscale(0.8) contrast(1.1); transition: filter 0.5s ease;"
+            class="w-full h-full hover:filter-none"
+        ></iframe>
+        
+        <div class="absolute top-10 left-10 md:left-20 bg-white p-6 rounded-xl shadow-2xl max-w-xs z-10 hidden md:block border border-gray-100">
+            <h3 class="text-secondary font-bold uppercase tracking-widest text-sm mb-2">Kudy k nám?</h3>
+            <p class="text-gray-500 leading-relaxed text-sm font-serif mb-3">
+                Velká Morava 54<br>
+                Dolní Morava, 561 69
+            </p>
+            <div class="bg-yellow-50 border border-yellow-200 p-3 rounded-lg text-xs text-yellow-800 mb-4 leading-relaxed">
+                <strong>Tip:</strong> Použijte ideálně <strong>Waze</strong>. Google mapy občas navádí omylem na penzion v kopci na druhém břehu. Zadejte přesně <em>Velká Morava 54</em>.
+            </div>
+            <a href="https://maps.google.com/?q=Velká+Morava+54,+Dolní+Morava" target="_blank" class="text-primary text-xs font-bold uppercase tracking-widest inline-block hover:text-primaryHover transition">
+                Otevřít v Google Maps <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i>
+            </a>
+        </div>
+    </section>
+
+    <footer class="bg-secondary text-white pt-20 pb-10 border-t border-white/10">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+                
+                <div class="space-y-6">
+                    <a href="#" class="text-3xl font-bold tracking-widest text-white uppercase inline-block">
+                        Chaloupka <span class="text-primary">Dolní Morava</span>
+                    </a>
+                    <p class="text-gray-400 leading-relaxed text-sm">
+                        Pohodové, levné ubytování v Jeseníkách. Původní roubená chalupa s historií a srdcem, ideální pro rodiny a přátele.
+                    </p>
+                    
+                    <ul class="space-y-4 mt-6">
+                        <li class="flex items-start gap-3">
+                            <div class="mt-1 w-6 flex justify-center">
+                                <i class="fa-solid fa-location-dot text-primary"></i>
+                            </div>
+                            <span class="text-gray-400 text-sm leading-relaxed">
+                                Velká Morava 54<br>
+                                Dolní Morava 561 69
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-bold uppercase mb-6 tracking-wider">Navigace</h4>
+                    <ul class="space-y-4 text-gray-400">
+                        <li><a href="#" class="hover:text-primary transition">Úvod</a></li>
+                        <li><a href="#history" class="hover:text-primary transition">Historické okénko</a></li>
+                        <li><a href="#dispozice" class="hover:text-primary transition">Vybavení</a></li>
+                        <li><a href="#trips" class="hover:text-primary transition">Kam v okolí</a></li>
+                        <li><a href="#reservation" class="hover:text-primary transition">Ceník, Kontakt a Řád</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-bold uppercase mb-6 tracking-wider">Tipy v okolí</h4>
+                    <div class="space-y-2 text-gray-400 text-sm">
+                        <p class="hover:text-white transition cursor-default">Králický Sněžník a pramen Moravy</p>
+                        <p class="hover:text-white transition cursor-default">Sky Bridge 721 a Stezka v oblacích</p>
+                        <p class="hover:text-white transition cursor-default">Přehrada Pastviny</p>
+                        <p class="hover:text-white transition cursor-default">Cyklotraily a Pěchotní srub</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-500 text-sm">
+                <p>© 2026 Chaloupka Dolní Morava - Všechna práva vyhrazena.</p>
+                <div class="flex gap-4 text-lg">
+                    <a href="#" class="hover:text-primary transition"><i class="fa-brands fa-facebook"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="image-modal" class="fixed inset-0 z-[100] hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <button onclick="closeImageModal()" class="absolute top-4 right-4 text-white hover:text-primary transition text-4xl z-50 p-4">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        
+        <img id="modal-image" src="" alt="Detail" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl scale-95 transition-transform duration-300 object-contain">
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/cs.js"></script>
+    <script>
+        // ==========================================
+        // KONFIGURACE PRO CHALOUPKU DOLNÍ MORAVA
+        // ==========================================
+        const KONFIGURACE = {
+            maxKapacita: 6, 
+            zakladniCenaNoc: 2100 // Orientační základna: 6 osob * 350 Kč
+        };
+
+        let selectedDatesRange = [];
+        let numberOfNights = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDropdowns();
+            initCarousel();
+            initCalendar();
+            initScrollNavbar();
+            
+            // Mobile Menu
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileClose = document.getElementById('mobile-menu-close');
+            
+            if(mobileBtn && mobileMenu) {
+                mobileBtn.addEventListener('click', () => { mobileMenu.classList.remove('hidden'); });
+                if(mobileClose) mobileClose.addEventListener('click', () => { mobileMenu.classList.add('hidden'); });
+                document.querySelectorAll('#mobile-menu a').forEach(link => { link.addEventListener('click', () => { mobileMenu.classList.add('hidden'); }); });
+            }
+        });
+
+        // ==========================================
+        // SCROLL NAVBAR EFEKT
+        // ==========================================
+        function initScrollNavbar() {
+            const navbar = document.getElementById('navbar');
+            
+            const updateNavbar = () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('bg-secondary/95', 'backdrop-blur-md', 'shadow-lg', 'py-4');
+                    navbar.classList.remove('py-8');
+                } else {
+                    navbar.classList.remove('bg-secondary/95', 'backdrop-blur-md', 'shadow-lg', 'py-4');
+                    navbar.classList.add('py-8');
+                }
+            };
+
+            updateNavbar();
+            window.addEventListener('scroll', updateNavbar);
+        }
+
+        // ==========================================
+        // LIGHTBOX FUNKCE
+        // ==========================================
+        function openImageModal(src) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-image');
+            
+            modalImg.src = src;
+            modal.classList.remove('hidden');
+            
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalImg.classList.remove('scale-95');
+                modalImg.classList.add('scale-100');
+            }, 10);
+            
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-image');
+
+            modal.classList.add('opacity-0');
+            modalImg.classList.remove('scale-100');
+            modalImg.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modalImg.src = ''; 
+            }, 300); 
+            
+            document.body.style.overflow = 'auto'; 
+        }
+
+        document.getElementById('image-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeImageModal();
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeImageModal();
+        });
+
+        // ==========================================
+        // OSTATNÍ FUNKCE
+        // ==========================================
+
+        function initDropdowns() {
+            const adultsSelect = document.getElementById('adults');
+            const childrenSelect = document.getElementById('children');
+            if(!adultsSelect || !childrenSelect) return;
+            
+            adultsSelect.innerHTML = ''; childrenSelect.innerHTML = '';
+
+            for (let i = 1; i <= KONFIGURACE.maxKapacita; i++) {
+                const opt = document.createElement('option');
+                opt.value = i; opt.text = i === 1 ? '1 dospělý' : (i < 5 ? `${i} dospělí` : `${i} dospělých`);
+                adultsSelect.appendChild(opt);
+            }
+            for (let i = 0; i <= KONFIGURACE.maxKapacita; i++) {
+                const opt = document.createElement('option');
+                opt.value = i; opt.text = i === 0 ? '0 dětí' : (i === 1 ? '1 dítě' : (i < 5 ? `${i} děti` : `${i} dětí`));
+                childrenSelect.appendChild(opt);
+            }
+        }
+
+        function updateGuestLogic() {
+            validateCapacity();
+        }
+
+        function validateCapacity() {
+            const adults = parseInt(document.getElementById('adults').value);
+            const children = parseInt(document.getElementById('children').value);
+            const totalGuests = adults + children;
+
+            const warningEl = document.getElementById('capacity-warning');
+            const btn = document.getElementById('submitBtn');
+
+            if (numberOfNights === 0) return;
+
+            if (totalGuests > KONFIGURACE.maxKapacita) {
+                warningEl.innerHTML = `Překročena kapacita! Maximálně ${KONFIGURACE.maxKapacita} osob.`;
+                warningEl.classList.remove('hidden');
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.disabled = true;
+            } else {
+                warningEl.classList.add('hidden');
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                btn.disabled = false;
+            }
+            calculatePrice(); 
+        }
+
+        function calculatePrice() {
+            if (numberOfNights === 0) return;
+
+            const totalPrice = KONFIGURACE.zakladniCenaNoc * numberOfNights;
+            const priceText = `Orientační plná cena: ${totalPrice.toLocaleString()} Kč (${numberOfNights}× noc)`;
+            document.getElementById('price-text').innerText = priceText;
+        }
+
+        function toggleChildAges(val) {
+            const container = document.getElementById('child_ages_container');
+            const count = parseInt(val);
+            container.innerHTML = ''; 
+            if (count > 0) {
+                container.classList.remove('hidden');
+                for (let i = 1; i <= count; i++) {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <label class="block text-xs text-gray-500 font-light mb-2">${i}. dítě věk</label>
+                        <div class="relative">
+                            <select class="w-full bg-white text-gray-700 h-12 px-4 rounded-lg appearance-none focus:outline-none cursor-pointer text-xs font-medium border border-gray-100 shadow-sm">
+                                <option>0-2 roky</option><option>3-12 let</option><option>13+ let</option>
+                            </select>
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                        </div>`;
+                    container.appendChild(div);
+                }
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function initCalendar() {
+            const calendarInput = document.getElementById('inline-calendar-input');
+            if(!calendarInput) return;
+
+            flatpickr("#inline-calendar-input", {
+                inline: true, mode: "range", locale: "cs", minDate: "today", dateFormat: "d. m. Y", showMonths: 2,
+                onChange: function(selectedDates) {
+                    if(selectedDates.length === 2) {
+                        selectedDatesRange = selectedDates;
+                        const diffTime = Math.abs(selectedDates[1] - selectedDates[0]);
+                        numberOfNights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        
+                        document.getElementById('price-summary').classList.remove('hidden');
+                        document.getElementById('room-selection').classList.remove('hidden');
+                        validateCapacity();
+                    } else {
+                        numberOfNights = 0;
+                        document.getElementById('price-summary').classList.add('hidden');
+                        document.getElementById('room-selection').classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        function initCarousel() {
+            const track = document.getElementById('track');
+            if(!track) return;
+            const items = Array.from(document.querySelectorAll('.carousel-item'));
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            let currentIndex = 1; 
+            function updateCarousel() {
+                const itemWidth = items[0].offsetWidth;
+                const gap = window.innerWidth < 768 ? 16 : 32;
+                const totalUnitWidth = itemWidth + gap;
+                const offset = -((currentIndex * totalUnitWidth) + (itemWidth / 2));
+                track.style.transform = `translateX(${offset}px)`;
+                items.forEach((item, index) => {
+                    const overlay = item.querySelector('.overlay-layer');
+                    const content = item.querySelector('.content-layer');
+                    if (index === currentIndex) {
+                        item.style.transform = 'scale(1)'; item.style.zIndex = '20';
+                        overlay.style.backgroundColor = 'rgba(255, 255, 255, 0)'; 
+                        content.style.opacity = '1'; content.style.transform = 'translateY(0)';
+                    } else {
+                        item.style.transform = 'scale(0.85)'; item.style.zIndex = '10';
+                        overlay.style.backgroundColor = 'rgba(255, 255, 255, 0.6)'; 
+                        content.style.opacity = '0'; content.style.transform = 'translateY(20px)';
+                    }
+                });
+            }
+            nextBtn.addEventListener('click', () => { currentIndex < items.length - 1 ? currentIndex++ : currentIndex = 0; updateCarousel(); });
+            prevBtn.addEventListener('click', () => { currentIndex > 0 ? currentIndex-- : currentIndex = items.length - 1; updateCarousel(); });
+            window.addEventListener('resize', updateCarousel);
+            setTimeout(updateCarousel, 100);
+        }
+    </script>
+</body>
+</html>
